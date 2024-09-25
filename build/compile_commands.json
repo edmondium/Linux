@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/edmondium/Linux/build",
+  "command": "/usr/bin/g++ -DUSE_C10D_GLOO -DUSE_DISTRIBUTED -DUSE_RPC -DUSE_TENSORPIPE -isystem /usr/local/include/torch/csrc/api/include  -D_GLIBCXX_USE_CXX11_ABI=1 -g -std=gnu++20 -D_GLIBCXX_USE_CXX11_ABI=1 -o CMakeFiles/example-app.dir/example-app.cpp.o -c /home/edmondium/Linux/Torch/example-app.cpp",
+  "file": "/home/edmondium/Linux/Torch/example-app.cpp",
+  "output": "CMakeFiles/example-app.dir/example-app.cpp.o"
+}
+]
