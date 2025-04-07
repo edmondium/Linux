@@ -1,0 +1,5 @@
+openmp:
+c++ -O3 -std=c++23 -fopenmp code.cpp -o binary-openmp -lkokkoscore
+
+cuda:
+nvcc_wrapper -O3 -std=c++20 -fopenmp code.cpp -o binary-cuda -lkokkoscore
