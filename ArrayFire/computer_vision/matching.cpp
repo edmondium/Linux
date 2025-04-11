@@ -47,9 +47,9 @@ static void templateMatchingDemo(bool console) {
     // Load image
     array img_color;
     if (console)
-        img_color = loadImage(ASSETS_DIR "/examples/images/square.png", true);
+        img_color = loadImage("../images/square.png", true);
     else
-        img_color = loadImage(ASSETS_DIR "/examples/images/man.jpg", true);
+        img_color = loadImage("../images/man.jpg", true);
 
     // Convert the image from RGB to gray-scale
     array img  = colorSpace(img_color, AF_GRAY, AF_RGB);
