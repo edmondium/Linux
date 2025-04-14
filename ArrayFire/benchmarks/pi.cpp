@@ -1,61 +1,63 @@
-#include <arrayfire.h>
-#include <cmath>
-#include <cstdio>
-#include <iostream>
-#include <random>
-#include <chrono>
+/*******************************************************
+ * Copyright (c) 2014, ArrayFire
+ * All rights reserved.
+ *
+ * This file is distributed under 3-clause BSD license.
+ * The complete license agreement can be obtained at:
+ * http://arrayfire.com/licenses/BSD-3-Clause
+ ********************************************************/
 
+/*
+   monte-carlo estimation of PI
+
+   algorithm:
+   - generate random (x,y) samples uniformly
+   - count what percent fell inside (top quarter) of unit circle
+*/
+
+#include <arrayfire.h>
+#include <math.h>
+#include <stdio.h>
+#include <cstdlib>
 using namespace af;
 
-static constexpr int samples = 20'000'000;
+// generate millions of random samples
+static int samples = 20e6;
 
-// Generate device estimate of Pi
+/* Self-contained code to run host and device estimates of PI.  Note that
+   each is generating its own random values, so the estimates of PI
+   will differ. */
 static double pi_device() {
-    array x = randu(samples, f32);
-    array y = randu(samples, f32);
+    array x = randu(samples, f32), y = randu(samples, f32);
     return 4.0 * sum<float>(sqrt(x * x + y * y) < 1) / samples;
 }
 
-// Generate host estimate of Pi
 static double pi_host() {
     int count = 0;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
     for (int i = 0; i < samples; ++i) {
-        float x = dist(gen);
-        float y = dist(gen);
+        float x = float(rand()) / float(RAND_MAX);
+        float y = float(rand()) / float(RAND_MAX);
         if (sqrt(x * x + y * y) < 1) count++;
     }
     return 4.0 * count / samples;
 }
 
-// Wrappers for timing
+// void wrappers for timeit()
 static void device_wrapper() { pi_device(); }
 static void host_wrapper() { pi_host(); }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     try {
-        int device = argc > 1 ? std::stoi(argv[1]) : 0;
+        int device = argc > 1 ? atoi(argv[1]) : 0;
         setDevice(device);
         info();
 
-        auto device_start = std::chrono::high_resolution_clock::now();
-        double device_pi = pi_device();
-        auto device_end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> device_time = device_end - device_start;
-
-        std::cout << "Device: " << device_time.count() << " seconds to estimate Pi = " << device_pi << "\n";
-
-        auto host_start = std::chrono::high_resolution_clock::now();
-        double host_pi = pi_host();
-        auto host_end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> host_time = host_end - host_start;
-
-        std::cout << "Host: " << host_time.count() << " seconds to estimate Pi = " << host_pi << "\n";
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << "\n";
+        printf("device:  %.5f seconds to estimate  pi = %.5f\n",
+               timeit(device_wrapper), pi_device());
+        printf("  host:  %.5f seconds to estimate  pi = %.5f\n",
+               timeit(host_wrapper), pi_host());
+    } catch (exception& e) {
+        fprintf(stderr, "%s\n", e.what());
         throw;
     }
 
