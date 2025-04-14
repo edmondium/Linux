@@ -1,94 +1,136 @@
+/*******************************************************
+ * Copyright (c) 2015, ArrayFire
+ * All rights reserved.
+ *
+ * This file is distributed under 3-clause BSD license.
+ * The complete license agreement can be obtained at:
+ * http://arrayfire.com/licenses/BSD-3-Clause
+ ********************************************************/
+
 #include <arrayfire.h>
+#include <cstdio>
 #include <cstdlib>
-#include <iostream>
-#include <string_view>
 
-constexpr std::string_view ASSETS_DIR = "../images/";
+using namespace af;
 
-void harris_demo(bool console) {
+static void harris_demo(bool console) {
     af::Window wnd("Harris Corner Detector");
 
     // Load image
-    af::array img_color = console
-        ? af::loadImage((ASSETS_DIR.data() + std::string("square.png")).c_str(), true)
-        : af::loadImage((ASSETS_DIR.data() + std::string("man.jpg")).c_str(), true);
+    array img_color;
+    if (console)
+        img_color = loadImage("../images/square.png", true);
+    else
+        img_color = loadImage("../images/man.jpg", true);
+    // Convert the image from RGB to gray-scale
+    array img = colorSpace(img_color, AF_GRAY, AF_RGB);
+    // For visualization in ArrayFire, color images must be in the [0.0f-1.0f]
+    // interval
+    img_color /= 255.f;
 
-    // Convert RGB to grayscale
-    af::array img = af::colorSpace(img_color, AF_GRAY, AF_RGB);
-    img_color /= 255.0f; // Normalize for visualization
-
-    // Compute gradients
-    af::array ix, iy;
-    af::grad(ix, iy, img);
+    // Calculate image gradients
+    array ix, iy;
+    grad(ix, iy, img);
 
     // Compute second-order derivatives
-    af::array ixx = ix * ix;
-    af::array ixy = ix * iy;
-    af::array iyy = iy * iy;
+    array ixx = ix * ix;
+    array ixy = ix * iy;
+    array iyy = iy * iy;
 
-    // Gaussian kernel
-    af::array gauss_filt = af::gaussianKernel(5, 5, 1.0, 1.0);
+    // Compute a Gaussian kernel with standard deviation of 1.0 and length of 5
+    // pixels These values can be changed to use a smaller or larger window
+    array gauss_filt = gaussianKernel(5, 5, 1.0, 1.0);
 
-    // Apply Gaussian filter
-    ixx = af::convolve(ixx, gauss_filt);
-    ixy = af::convolve(ixy, gauss_filt);
-    iyy = af::convolve(iyy, gauss_filt);
+    // Filter second-order derivatives with Gaussian kernel computed previously
+    ixx = convolve(ixx, gauss_filt);
+    ixy = convolve(ixy, gauss_filt);
+    iyy = convolve(iyy, gauss_filt);
 
-    // Compute Harris response
-    af::array itr = ixx + iyy;
-    af::array idet = ixx * iyy - ixy * ixy;
-    af::array response = idet - 0.04f * (itr * itr);
+    // Calculate trace
+    array itr = ixx + iyy;
+    // Calculate determinant
+    array idet = ixx * iyy - ixy * ixy;
 
-    // Non-maximum suppression and thresholding
-    af::array mask = af::constant(1, 3, 3);
-    af::array max_resp = af::dilate(response, mask);
-    af::array corners = response > 1e5f;
-    corners = corners * response;
+    // Calculate Harris response
+    array response = idet - 0.04f * (itr * itr);
+
+    // Gets maximum response for each 3x3 neighborhood
+    // array max_resp = maxfilt(response, 3, 3);
+    array mask     = constant(1, 3, 3);
+    array max_resp = dilate(response, mask);
+
+    // Discard responses that are not greater than threshold
+    array corners = response > 1e5f;
+    corners       = corners * response;
+
+    // Discard responses that are not equal to maximum neighborhood response,
+    // scale them to original response value
     corners = (corners == max_resp) * corners;
 
-    // Draw crosshairs for detected corners
+    // Gets host pointer to response data
     float* h_corners = corners.host<float>();
-    const int draw_len = 3;
+
     unsigned good_corners = 0;
 
-    for (int y = draw_len; y < img_color.dims(0) - draw_len; ++y) {
-        for (int x = draw_len; x < img_color.dims(1) - draw_len; ++x) {
+    // Draw draw_len x draw_len crosshairs where the corners are
+    const int draw_len = 3;
+    for (int y = draw_len; y < img_color.dims(0) - draw_len; y++) {
+        for (int x = draw_len; x < img_color.dims(1) - draw_len; x++) {
+            // Only draws crosshair if is a corner
             if (h_corners[x * corners.dims(0) + y] > 1e5f) {
-                // Draw crosshairs
-                img_color(y, af::seq(x - draw_len, x + draw_len), 0) = 0.f;
-                img_color(y, af::seq(x - draw_len, x + draw_len), 1) = 1.f;
-                img_color(y, af::seq(x - draw_len, x + draw_len), 2) = 0.f;
+                // Draw horizontal line of (draw_len * 2 + 1) pixels centered on
+                // the corner Set only the first channel to 1 (green lines)
+                img_color(y, seq(x - draw_len, x + draw_len), 0) = 0.f;
+                img_color(y, seq(x - draw_len, x + draw_len), 1) = 1.f;
+                img_color(y, seq(x - draw_len, x + draw_len), 2) = 0.f;
 
-                img_color(af::seq(y - draw_len, y + draw_len), x, 0) = 0.f;
-                img_color(af::seq(y - draw_len, y + draw_len), x, 1) = 1.f;
-                img_color(af::seq(y - draw_len, y + draw_len), x, 2) = 0.f;
-                ++good_corners;
+                // Draw vertical line of (draw_len * 2 + 1) pixels centered on
+                // the corner Set only the first channel to 1 (green lines)
+                img_color(seq(y - draw_len, y + draw_len), x, 0) = 0.f;
+                img_color(seq(y - draw_len, y + draw_len), x, 1) = 1.f;
+                img_color(seq(y - draw_len, y + draw_len), x, 2) = 0.f;
+
+                good_corners++;
             }
         }
     }
-    af::freeHost(h_corners);
+    freeHost(h_corners);
 
-    std::cout << "Corners found: " << good_corners << '\n';
+    printf("Corners found: %u\n", good_corners);
 
     if (!console) {
-        while (!wnd.close())
-            wnd.image(img_color);
+        // Previews color image with green crosshairs
+        while (!wnd.close()) wnd.image(img_color);
+    } else {
+        // Find corner indexes in the image as 1D indexes
+        array idx = where(corners);
+
+        // Calculate 2D corner indexes
+        array corners_x = idx / corners.dims()[0];
+        array corners_y = idx % corners.dims()[0];
+
+        const int good_corners = corners_x.dims()[0];
+        printf("Corners found: %d\n\n", good_corners);
+
+        af_print(corners_x);
+        af_print(corners_y);
     }
 }
 
 int main(int argc, char** argv) {
-    try {
-        int device = argc > 1 ? std::stoi(argv[1]) : 0;
-        bool console = argc > 2 && argv[2][0] == '-';
+    int device   = argc > 1 ? atoi(argv[1]) : 0;
+    bool console = argc > 2 ? argv[2][0] == '-' : false;
 
+    try {
         af::setDevice(device);
         af::info();
-        std::cout << "** ArrayFire Harris Corner Detector Demo **\n\n";
-
+        printf("** ArrayFire Harris Corner Detector Demo **\n\n");
         harris_demo(console);
-    } catch (const af::exception& ae) {
-        std::cerr << ae.what() << '\n';
+
+    } catch (af::exception& ae) {
+        fprintf(stderr, "%s\n", ae.what());
         throw;
     }
+
     return 0;
 }
