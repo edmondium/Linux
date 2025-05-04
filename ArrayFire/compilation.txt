@@ -1,1 +1,4 @@
-c++ -O3 -std=c++23 code.cpp -o binary -lafcuda / -lafcpu / -lafopencl / -lafoneapi / -laf
+c++ -O3 -std=c++23 code.cpp -o binary -lafcpu / -lafcuda / -lafopencl / -lafoneapi / -laf
+
+wget -qO - https://repo.arrayfire.com/GPG-PUB-KEY-ARRAYFIRE-2020.PUB | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/arrayfire.gpg > /dev/null
+echo "deb [arch=amd64] https://repo.arrayfire.com/debian all main" | sudo tee /etc/apt/sources.list.d/arrayfire.list
