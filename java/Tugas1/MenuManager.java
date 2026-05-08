@@ -16,19 +16,19 @@ class MenuManager {
         };
     }
 
-    public void tampilkanDaftar() {
-        System.out.println("=== DAFTAR MENU RESTORAN ===");
-        System.out.println("--- MAKANAN ---");
-        System.out.println("1. " + daftarMenu[0].nama + " \t- " + CurrencyFormatter.format(daftarMenu[0].harga));
-        System.out.println("2. " + daftarMenu[1].nama + " \t- " + CurrencyFormatter.format(daftarMenu[1].harga));
-        System.out.println("3. " + daftarMenu[2].nama + " \t- " + CurrencyFormatter.format(daftarMenu[2].harga));
-        System.out.println("4. " + daftarMenu[3].nama + " \t- " + CurrencyFormatter.format(daftarMenu[3].harga));
-        System.out.println("--- MINUMAN ---");
-        System.out.println("5. " + daftarMenu[4].nama + " \t- " + CurrencyFormatter.format(daftarMenu[4].harga));
-        System.out.println("6. " + daftarMenu[5].nama + " \t- " + CurrencyFormatter.format(daftarMenu[5].harga));
-        System.out.println("7. " + daftarMenu[6].nama + " \t- " + CurrencyFormatter.format(daftarMenu[6].harga));
-        System.out.println("8. " + daftarMenu[7].nama + " \t- " + CurrencyFormatter.format(daftarMenu[7].harga));
-        System.out.println("----------------------------");
+    public String getDaftarMenuString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MAKANAN\n");
+        sb.append("1. ").append(daftarMenu[0].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[0].harga)).append("\n");
+        sb.append("2. ").append(daftarMenu[1].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[1].harga)).append("\n");
+        sb.append("3. ").append(daftarMenu[2].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[2].harga)).append("\n");
+        sb.append("4. ").append(daftarMenu[3].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[3].harga)).append("\n\n");
+        sb.append("MINUMAN\n");
+        sb.append("5. ").append(daftarMenu[4].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[4].harga)).append("\n");
+        sb.append("6. ").append(daftarMenu[5].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[5].harga)).append("\n");
+        sb.append("7. ").append(daftarMenu[6].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[6].harga)).append("\n");
+        sb.append("8. ").append(daftarMenu[7].nama).append(" - ").append(CurrencyFormatter.format(daftarMenu[7].harga)).append("\n");
+        return sb.toString();
     }
 
     public Menu cari(String input) {

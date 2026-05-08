@@ -5,6 +5,48 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "HalloBelajar",
+            "request": "launch",
+            "mainClass": "HalloBelajar",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "FormatString",
+            "request": "launch",
+            "mainClass": "FormatString",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "DemoMethod",
+            "request": "launch",
+            "mainClass": "DemoMethod",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "tugas1",
+            "request": "launch",
+            "mainClass": "tugas1",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "dasarJava",
+            "request": "launch",
+            "mainClass": "dasarJava",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "switchCaseThree",
+            "request": "launch",
+            "mainClass": "switchCaseThree",
+            "projectName": ""
+        },
+        {
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
