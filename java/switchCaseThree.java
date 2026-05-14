@@ -22,7 +22,7 @@ public class switchCaseThree {
                 System.out.println("Luas persegi panjang: " +luas);
             }
                 case 2 -> {
-                    keliling = (2*panjang)+(2*lebar);
+                    keliling = (2*panjang)+(2*lebar); // keliling = 2 * (panjang + lebar)
                     System.out.println("Keliling persegi panjang: " +keliling);
                 }
         }
