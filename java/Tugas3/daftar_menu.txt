@@ -1,0 +1,3 @@
+MAKANAN;nasi;10000.0;
+MINUMAN;susu;15000.0;
+DISKON;weekend;50.0
