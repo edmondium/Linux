@@ -7,3 +7,6 @@ df$EstimatedSalary[is.na(df$EstimatedSalary)] <- 0
 df$Age[is.na(df$Age)] <- mean(df$Age, na.rm = TRUE)
 min(df$Age, na.rm = TRUE)
 max(df$Age, na.rm = TRUE)
+df$Gender <- as.factor(df$Gender)
+summary(df$Gender)
+levels(df$Gender)
