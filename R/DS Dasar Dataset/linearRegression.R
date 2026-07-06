@@ -1,0 +1,10 @@
+df <- read.csv("Salary_Data.csv")
+library(caTools)
+set.seed(123)
+pecah <- sample.split(df$Salary, SplitRatio = 0.7)
+training_set <- subset(df, pecah == TRUE)
+test_set <- subset(df, pecah == FALSE)
+regressor <- lm(formula = Salary ~ YearsExperience,
+                data = training_set)
+y_pred <- predict(regressor, newdata = test_set)
+result <- cbind(test_set, y_pred)
