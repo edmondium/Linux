@@ -15,3 +15,7 @@ prob_pred <- predict(classifier, type = "response",
 prob_pred
 y_pred <- ifelse(prob_pred >= 0.5, 1, 0)
 result <- cbind(test_set, y_pred)
+cm <- table(test_set[, 3], y_pred)
+cm
+y_pred_num <- as.numeric(y_pred)
+colAUC(y_pred_num, test_set[, 3], plotROC = TRUE)

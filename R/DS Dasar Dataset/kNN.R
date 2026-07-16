@@ -14,3 +14,7 @@ y_pred <- knn(train = training_set[, -3],
               k = 5)
 summary(y_pred)
 result <- cbind(test_set, y_pred)
+cm <- table(test_set[, 3], y_pred)
+cm
+y_pred_num <- as.numeric(y_pred)
+colAUC(y_pred_num, test_set[, 3], plotROC = TRUE)
