@@ -14,3 +14,8 @@ kmeans6$cluster
 kmeans6$centers
 kmeans4 <- kmeans(data, 4, iter.max = 10, nstart = 10)
 kmeans4$size
+datafinal <- cbind(data, kmeans6$cluster)
+library(clue)
+data_pred <- read.csv("K Means Data.csv")
+result <- cl_predict(kmeans6, newdata = data_pred)
+table(result)
